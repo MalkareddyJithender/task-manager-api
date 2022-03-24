@@ -1,23 +1,33 @@
 const express = require('express')
 const Task = require('../models/task')
-const auth = require('../middleware/auth')
+const auth = require('../middleware/auth');
+const textToImage = require('text-to-image');
 const router = new express.Router()
  
 router.post('/tasks',auth, async (req,res) =>
 {
     const task = new Task({
-        ...req.body,
-        owner: req.user._id   
-    })
-    try
-    {
-        await task.save()
-        res.status(201).send(task)
-    }
-    catch(e)
-    {
-        res.status(400).send(e)
-    }
+        description:'my work--01',
+        completed:true,
+        owner:'60166db76cbdca3380563930'
+    });
+    console.log(task);
+    await task.save();
+    console.log(task);
+    // const task = new Task({
+    //     ...req.body,
+    //     owner: req.user._id   
+    // });
+
+    // try
+    // {
+    //     await task.save()
+    //     res.status(201).send(task)
+    // }
+    // catch(e)
+    // {
+    //     res.status(400).send(e)
+    // }
 })
 
 //GET/tasks?completed=true
@@ -135,7 +145,48 @@ router.delete('/tasks/:id',auth,async (req, res) =>
     {
         res.status(500).send(e)
     }
-})
+});
+
+
+
+//get image url
+export const getImage = async (req,res) =>
+{
+    try
+    {
+    if(!req.body.actualQuote)
+    {
+        throw new Error("Quote is required!");
+    }
+    if(!req.body.color)
+    {
+        throw new Error("Color is required!");
+    };
+
+    textToImage.generate(req.body.actualQuote,{
+    maxWidth: 1000,
+    customHeight:500,
+    bgColor:'black',
+    fontFamily:'Lato',
+    fontSize:22,
+    fontWeight:'bold',
+    textColor:req.body.color,
+    textAlign:"center",
+    verticalAlign:"center"
+    }).then(function (dataUri) {
+        res.status(200).send(dataUri);
+    });
+        
+    }
+    catch(e:any)
+    {
+        res.status(400).send(e.message);
+    }
+
+};
+router.post('/tasks/getUrlOfImage',getImage);
+
+
 
 
 

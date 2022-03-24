@@ -8,7 +8,8 @@ const {sendWelcomeEmail:sendWelEmail,sendCancelEmail:sendCancellationEmail} = re
 const router = new express.Router()
 
 router.post('/users', async (req, res) => {
-    const user = new User(req.body)
+    const user = new User(req.body);
+    console.log(user);
      try
      {    
     await user.save()
@@ -21,6 +22,7 @@ router.post('/users', async (req, res) => {
           res.status(400).send(e)
       }
 })
+
 
 router.post('/users/login',async (req,res) =>
 {
@@ -79,7 +81,6 @@ router.patch('/users/me', auth, async (req, res) =>
 {
 
       const updates = Object.keys(req.body)
-      console.log(updates)
       const allowedupdates = ['name','age','email','password']
       const isValidOperation = updates.every((update) => allowedupdates.includes(update))
       if(!isValidOperation)
