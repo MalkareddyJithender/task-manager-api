@@ -150,7 +150,7 @@ router.delete('/tasks/:id',auth,async (req, res) =>
 
 
 //get image url
-export const getImage = async (req,res) =>
+const getImage = (req,res) =>
 {
     try
     {
@@ -178,7 +178,7 @@ export const getImage = async (req,res) =>
     });
         
     }
-    catch(e:any)
+    catch(e)
     {
         res.status(400).send(e.message);
     }
