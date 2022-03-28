@@ -189,9 +189,8 @@ const getImage = (req,res) =>
 router.post('/tasks/getUrlOfImage',getImage);
 
 // exxtra added api for getting all comapnies
-router.get('/companies',auth,async (req,res) =>
+router.get('/companies',async (req,res) =>
 { 
-  const _id = req.params.id  
   try
   {
     if(req.query.name)
