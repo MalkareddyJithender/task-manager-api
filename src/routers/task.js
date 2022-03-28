@@ -3,6 +3,7 @@ const Task = require('../models/task')
 const auth = require('../middleware/auth');
 const textToImage = require('text-to-image');
 const router = new express.Router()
+const data = require('../fixtures/data');
  
 router.post('/tasks',auth, async (req,res) =>
 {
@@ -185,7 +186,33 @@ const getImage = (req,res) =>
 
 };
 
-router.post('/tasks/getUrlOfImage',getImage)
+router.post('/tasks/getUrlOfImage',getImage);
+
+// exxtra added api for getting all comapnies
+router.get('/companies',auth,async (req,res) =>
+{ 
+  const _id = req.params.id  
+  try
+  {
+    if(req.query.name)
+    {
+      const foundItem = data.find((item) =>
+      {
+        return item.company_name.trim().toLowerCase() === req.query.name.trim().toLowerCase()
+      });
+      if(!foundItem)
+      {
+        throw new Error("No Company Found!");
+      }
+      return res.status(200).send(foundItem);
+    }
+    res.send(data);
+  }
+  catch(e)
+  {
+      res.status(500).send(e.message)
+  }
+})
 
 
 
