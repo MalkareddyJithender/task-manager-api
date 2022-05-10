@@ -7,7 +7,12 @@ const data = require("../fixtures/data");
 const nodemailer = require("nodemailer");
 const cors = require("cors")({ origin: true });
 
-const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+// Thanks for sending us a message! We’ll
+// get back to you as soon as possible.
+
+const getTemplate = (title,content) =>
+{
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:v="urn:schemas-microsoft-com:vml"
@@ -252,10 +257,10 @@ const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
                       class="h_auto m_device_width"
                     >
                       <!--[if gte mso 9]>
-									<v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:617px;">
-									<v:fill type="tile" src="https://i.imgur.com/OOD0bZL.jpg" color="#ffffff" />
-									<v:textbox inset="0,0,0,0">
-									<![endif]-->
+                  <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:617px;">
+                  <v:fill type="tile" src="https://i.imgur.com/OOD0bZL.jpg" color="#ffffff" />
+                  <v:textbox inset="0,0,0,0">
+                  <![endif]-->
                       <div>
                         <table
                           align="center"
@@ -309,7 +314,7 @@ const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
                                           align="center"
                                           style="font-family: 'Pacifico', Tahoma; font-size:34.28px; font-weight:normal; line-height:35px; color:#fff; text-align:center;"
                                         >
-                                          Hello
+                                          ${title}
                                         </td>
                                       </tr>
                                       <tr>
@@ -317,8 +322,7 @@ const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
                                           align="center"
                                           style="padding:20px 0px 0px 0px; font-family: 'Roboto', Tahoma, Segoe, sans-serif; font-size:20px; font-weight:normal; line-height:25.50px; color:#fff; text-align:center;"
                                         >
-                                          Thanks for sending us a message! We’ll
-                                          get back to you as soon as possible.
+                                          ${content}
                                         </td>
                                       </tr>
                                     </table>
@@ -344,9 +348,9 @@ const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
                         </table>
                       </div>
                       <!--[if gte mso 9]>
-									</v:textbox>
-									</v:rect>
-									<![endif]-->
+                  </v:textbox>
+                  </v:rect>
+                  <![endif]-->
                     </td>
                   </tr>
                 </table>
@@ -561,6 +565,9 @@ const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
   </body>
 </html>
 `;
+}
+
+
 
 router.post("/tasks", auth, async (req, res) => {
   const task = new Task({
@@ -750,10 +757,73 @@ let mailOptions = {
   text: "This is the sample testing text.",
 };
 
+
+
 router.get("/sendMail", (request, response) => {
   cors(request, response, () => {
-    const { name, email, phone, message } = request.query;
-    mailOptions = {
+    const { name, email, phone, message,total,service,platforms,features,customFeature,users,category } = request.query;
+
+    if(total)
+    {
+      if(category)
+      {
+      mailOptions = {
+      from: "Arc Development",
+      to: "jithendermallkareddy44@gmail.com",
+      subject: "Estimate Received !",
+      html: `
+        <p style="font-size:16px">From : ${name}</p>
+        <p style="font-size:16px">Email : ${email}</p>
+        <p style="font-size:16px">Phone Number : ${phone}</p>
+        <p style="font-size:16px">Message : ${message}</p>
+        <p style="font-size:16px">service : ${service}</p>
+        <p style="font-size:16px">category : ${category}</p>
+        <p style="font-size:16px">Total : ${total}</p>
+
+        `,
+    };
+      }
+      else
+      {
+      mailOptions = {
+      from: "Arc Development",
+      to: "jithendermallkareddy44@gmail.com",
+      subject: "Estimate Received !",
+      html: `
+        <p style="font-size:16px">From : ${name}</p>
+        <p style="font-size:16px">Email : ${email}</p>
+        <p style="font-size:16px">Phone Number : ${phone}</p>
+        <p style="font-size:16px">Message : ${message}</p>
+        <p style="font-size:16px">service : ${service}</p>
+        <p style="font-size:16px">Platforms : ${platforms}</p>
+        <p style="font-size:16px">Features : ${features}</p>
+        <p style="font-size:16px">Custom Features : ${customFeature}</p>
+        <p style="font-size:16px">Users : ${users}</p>
+        <p style="font-size:16px">Total : ${total}</p>
+
+        `,
+    };
+      }
+
+      transporter.sendMail(mailOptions, (error) => {
+      if (error) {
+        return response.status(400).send(error);
+      }
+      response.status(200).send("Message sent successfully!");
+      mailOptions = {
+        from: "Arc Development",
+        to: email,
+        subject: "We have received your estimate request.",
+        html:getTemplate("We're ready.","Thanks for placing your estimate request! We'll go over the details and get back to you as soon as possible."),   
+      };
+
+      transporter.sendMail(mailOptions);
+    });
+
+    }
+    else
+    {
+      mailOptions = {
       from: "Arc Development",
       to: "jithendermallkareddy44@gmail.com",
       subject: "Message Received !",
@@ -764,6 +834,7 @@ router.get("/sendMail", (request, response) => {
         <p style="font-size:16px">Message : ${message}</p>
         `,
     };
+    
     transporter.sendMail(mailOptions, (error) => {
       if (error) {
         return response.status(400).send(error);
@@ -773,11 +844,12 @@ router.get("/sendMail", (request, response) => {
         from: "Arc Development",
         to: email,
         subject: "We have received your message",
-        html: emailTemplate,
+        html:getTemplate("Hello","Thanks for sending us a message! We’ll get back to you as soon as possible."),   
       };
 
       transporter.sendMail(mailOptions);
     });
+    };
   });
 });
 
