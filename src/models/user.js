@@ -74,7 +74,7 @@ const userSchema = new mongoose.Schema({
      delete userObject.tokens
      delete userObject.avatar
 
-     return userObject
+     return userObject 
  }
 
  userSchema.methods.generateAuthToken = async function()
